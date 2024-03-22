@@ -68,6 +68,8 @@ func (h *Handler) registRoute() {
 
 	userH := newUserHandler(h.service.User)
 	fileH := newFileHandler(h.cfg)
+	friendH := newFriendHandler(h.service.Friend)
+	postH := newPostHandler(h.service.Post)
 
 	// r.Use(middleware.RedirectSlashes)
 	// r.Use(prometheusMiddleware)
@@ -89,6 +91,13 @@ func (h *Handler) registRoute() {
 		r.Post("/v1/user/link", userH.LinkEmail)
 		r.Post("/v1/user/link/phone", userH.LinkPhone)
 		r.Patch("/v1/user", userH.UpdateAccount)
+
+		r.Post("/v1/friend", friendH.AddFriend)
+		r.Delete("/v1/friend", friendH.DeleteFriend)
+
+		r.Post("/v1/post", postH.AddPost)
+
+		r.Post("/v1/post/comment", postH.AddComment)
 
 		r.Post("/v1/image", fileH.Upload)
 	})

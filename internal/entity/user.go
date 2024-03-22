@@ -8,5 +8,5 @@ type User struct {
 	PhoneNumber string    `json:"phone_number"`
 	Name        string    `json:"name"`
 	Password    string    `json:"password"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time `json:"created_at"` // TODO accshualllyy, we dont need this
 }

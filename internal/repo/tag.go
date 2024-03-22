@@ -1,6 +1,10 @@
 package repo
 
 import (
+	"context"
+	"fmt"
+	"strings"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,30 +16,30 @@ func newTagRepo(conn *pgxpool.Pool) *tagRepo {
 	return &tagRepo{conn}
 }
 
-// func (r *tagRepo) BatchInsert(ctx context.Context, tags []entity.Tag) error {
-// 	var values []interface{}
-// 	for _, tag := range tags {
-// 		values = append(values, tag.ProductID, tag.Tag)
-// 	}
+func (r *tagRepo) BatchInsert(ctx context.Context, tags []string, postID string) error {
+	var values []interface{}
+	for _, tag := range tags {
+		values = append(values, postID, tag)
+	}
 
-// 	query := "INSERT INTO tags (product_id, tag) VALUES "
-// 	var placeholders []string
-// 	for i := 0; i < len(tags); i++ {
-// 		placeholders = append(placeholders, fmt.Sprintf("($%d, $%d)", i*2+1, i*2+2))
-// 	}
-// 	query += strings.Join(placeholders, ",")
+	query := "INSERT INTO tags (post_id, tag) VALUES "
+	var placeholders []string
+	for i := 0; i < len(tags); i++ {
+		placeholders = append(placeholders, fmt.Sprintf("($%d, $%d)", i*2+1, i*2+2))
+	}
+	query += strings.Join(placeholders, ",")
 
-// 	_, err := r.conn.Exec(ctx, query, values...)
-// 	if err != nil {
-// 		return err
-// 	}
+	_, err := r.conn.Exec(ctx, query, values...)
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
 // func (r *tagRepo) DeleteByProductID(ctx context.Context, productID string) error {
 // 	_, err := r.conn.Exec(ctx, `
-// 	DELETE FROM tags WHERE product_id = $1
+// 	DELETE FROM tags WHERE post_id = $1
 // 	`, productID)
 // 	if err != nil {
 // 		return err
@@ -46,7 +50,7 @@ func newTagRepo(conn *pgxpool.Pool) *tagRepo {
 
 // func (r *tagRepo) GetAllByProductID(ctx context.Context, productID string) ([]string, error) {
 // 	rows, err := r.conn.Query(ctx, `
-// 	SELECT tag FROM tags WHERE product_id = $1
+// 	SELECT tag FROM tags WHERE post_id = $1
 // 	`, productID)
 // 	if err != nil {
 // 		if err.Error() == "no rows in result set" {

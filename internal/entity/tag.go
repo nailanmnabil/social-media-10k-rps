@@ -1,7 +1,7 @@
 package entity
 
 type Tag struct {
-	ID        int    `json:"id"`
-	ProductID string `json:"product_id"`
-	Tag       string `json:"tag"`
+	ID      int    `json:"id"`
+	Tag     string `json:"tag"`
+	PostID  string `json:"post_id"` // UUID
 }

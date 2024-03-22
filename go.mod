@@ -1,4 +1,4 @@
-module github.com/vandenbill/marketplace-10k-rps
+module github.com/vandenbill/social-media-10k-rps
 
 go 1.21.6
 

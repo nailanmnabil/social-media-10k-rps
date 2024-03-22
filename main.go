@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/vandenbill/marketplace-10k-rps/internal/cfg"
-	"github.com/vandenbill/marketplace-10k-rps/internal/handler"
-	"github.com/vandenbill/marketplace-10k-rps/internal/repo"
-	"github.com/vandenbill/marketplace-10k-rps/internal/service"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/env"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/postgre"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/router"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/validator"
+	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
+	"github.com/vandenbill/social-media-10k-rps/internal/handler"
+	"github.com/vandenbill/social-media-10k-rps/internal/repo"
+	"github.com/vandenbill/social-media-10k-rps/internal/service"
+	"github.com/vandenbill/social-media-10k-rps/pkg/env"
+	"github.com/vandenbill/social-media-10k-rps/pkg/postgre"
+	"github.com/vandenbill/social-media-10k-rps/pkg/router"
+	"github.com/vandenbill/social-media-10k-rps/pkg/validator"
 )
 
 func main() {

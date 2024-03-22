@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-	"github.com/vandenbill/marketplace-10k-rps/internal/cfg"
-	"github.com/vandenbill/marketplace-10k-rps/internal/service"
+	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
+	"github.com/vandenbill/social-media-10k-rps/internal/service"
 )
 
 // var (
@@ -68,8 +68,6 @@ func (h *Handler) registRoute() {
 
 	userH := newUserHandler(h.service.User)
 	fileH := newFileHandler(h.cfg)
-	productH := newProductHandler(h.service.Product, h.cfg)
-	bankH := newBankAccountHandler(h.service.BankAccount)
 
 	// r.Use(middleware.RedirectSlashes)
 	// r.Use(prometheusMiddleware)
@@ -83,29 +81,12 @@ func (h *Handler) registRoute() {
 	r.Post("/v1/user/register", userH.Register)
 	r.Post("/v1/user/login", userH.Login)
 
-	r.Get("/v1/product", productH.GetWithFilter)
-	r.Get("/v1/product/{product_id}", productH.GetByID)
-
 	// protected route
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))
 		r.Use(jwtauth.Authenticator(tokenAuth))
 
 		r.Post("/v1/image", fileH.Upload)
-
-		r.Post("/v1/product", productH.Create)
-		r.Post("/v1/product/{product_id}/stock", productH.ChangeStock)
-		r.Post("/v1/product/{product_id}/buy", productH.Buy)
-		r.Patch("/v1/product/{product_id}", productH.Update)
-		r.Delete("/v1/product/{product_id}", productH.Delete)
-
-		r.Post("/v1/bank/account", bankH.Create)
-		r.Get("/v1/bank/account", bankH.Get)
-		r.Patch("/v1/bank/account", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-		})
-		r.Patch("/v1/bank/account/{bank_account_id}", bankH.Update)
-		r.Delete("/v1/bank/account/{bank_account_id}", bankH.Delete)
 	})
 }
 

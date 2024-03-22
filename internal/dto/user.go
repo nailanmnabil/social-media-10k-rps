@@ -1,32 +1,49 @@
 package dto
 
 import (
-	"github.com/vandenbill/marketplace-10k-rps/internal/entity"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/auth"
+	"github.com/vandenbill/social-media-10k-rps/internal/entity"
+	"github.com/vandenbill/social-media-10k-rps/pkg/auth"
+	"github.com/vandenbill/social-media-10k-rps/pkg/validator"
 )
 
 type (
 	ReqRegister struct {
-		Username string `json:"username" validate:"required,min=5,max=15"`
-		Name     string `json:"name" validate:"required,min=5,max=50"`
-		Password string `json:"password" validate:"required,min=5,max=15"`
+		CredentialType  validator.CredentialType `json:"credentialType" validate:"required,oneof=phone email"`
+		CredentialValue string                   `json:"credentialValue" validate:"required"`
+		Name            string                   `json:"name" validate:"required,min=5,max=50"`
+		Password        string                   `json:"password" validate:"required,min=5,max=15"`
 	}
 	ResRegister struct {
-		Username    string `json:"username"`
+		Phone       string `json:"phone,omitempty"`
+		Email       string `json:"email,omitempty"`
 		Name        string `json:"name"`
 		AccessToken string `json:"accessToken"`
 	}
 	ReqLogin struct {
-		Username string `json:"username" validate:"required,min=5,max=15"`
-		Password string `json:"password" validate:"required,min=5,max=15"`
+		CredentialType  validator.CredentialType `json:"credentialType" validate:"required,oneof=phone email"`
+		CredentialValue string                   `json:"credentialValue" validate:"required"`
+		Password        string                   `json:"password" validate:"required,min=5,max=15"`
 	}
 	ResLogin struct {
-		Username    string `json:"username"`
+		Phone       string `json:"phone,omitempty"`
+		Email       string `json:"email,omitempty"`
 		Name        string `json:"name"`
 		AccessToken string `json:"accessToken"`
 	}
 )
 
-func (d *ReqRegister) ToEntity(cryptCost int) entity.User {
-	return entity.User{Username: d.Username, Name: d.Name, Password: auth.HashPassword(d.Password, cryptCost)}
+func (d *ReqRegister) ToEntity(cryptCost int) (bool, entity.User) {
+	email := ""
+	phone := ""
+	isUseEmail := false
+
+	if d.CredentialType == validator.EmailType {
+		email = d.CredentialValue
+		isUseEmail = true
+	}
+	if d.CredentialType == validator.PhoneType {
+		phone = d.CredentialValue
+	}
+
+	return isUseEmail, entity.User{Name: d.Name, Password: auth.HashPassword(d.Password, cryptCost), Email: email, PhoneNumber: phone}
 }

@@ -6,6 +6,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+type CredentialType string
+
+const (
+	PhoneType CredentialType = "phone"
+	EmailType CredentialType = "email"
+)
+
 type CustomValidator struct {
 	Validator *validator.Validate
 }
@@ -14,8 +21,6 @@ func New() *validator.Validate {
 	cv := &CustomValidator{
 		Validator: validator.New(),
 	}
-
-	// Register custom validation functions here
 
 	return cv.Validator
 }

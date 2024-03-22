@@ -1,50 +1,37 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username VARCHAR(255) UNIQUE,
-    name VARCHAR(255),
-    password VARCHAR(255)
+CREATE TABLE USERS (
+    id UUID PRIMARY KEY,
+    email VARCHAR UNIQUE,
+    phone_number VARCHAR UNIQUE,
+    name VARCHAR,
+    password VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE products (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255),
-    price INT,
-    image_url VARCHAR(255),
-    stock INT,
-    user_id UUID REFERENCES users(id),
-    condition VARCHAR(255) CHECK (condition IN ('new', 'second')),
-    is_purchasable BOOLEAN
-);
-
-CREATE TABLE tags (
+CREATE TABLE FRIENDS (
     id SERIAL PRIMARY KEY,
-    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-    tag VARCHAR(255)
+    a UUID REFERENCES USERS(id) ON DELETE CASCADE,
+    b UUID REFERENCES USERS(id) ON DELETE CASCADE
 );
 
-CREATE TABLE bank_accounts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id),
-    bank_name VARCHAR(255),
-    bank_account_name VARCHAR(255),
-    bank_account_number VARCHAR(255)
+CREATE TABLE POSTS (
+    id UUID PRIMARY KEY,
+    content VARCHAR,
+    creator UUID REFERENCES USERS(id) ON DELETE CASCADE
 );
 
-CREATE TABLE payments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id),
-    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-    bank_account_id UUID REFERENCES bank_accounts(id) ON DELETE SET NULL,
-    payment_proof_image_url VARCHAR(255),
-    quantity INT
+CREATE TABLE TAGS (
+    id SERIAL PRIMARY KEY,
+    tag VARCHAR,
+    post_id UUID REFERENCES POSTS(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_product_price ON products (price);
-
-CREATE INDEX idx_tags_product_id ON tags (product_id);
-
-CREATE UNIQUE INDEX idx_user_username ON users (username);
+CREATE TABLE COMMENTS (
+    id SERIAL PRIMARY KEY,
+    post_id UUID REFERENCES POSTS(id) ON DELETE CASCADE,
+    comment VARCHAR,
+    user_id UUID REFERENCES USERS(id) ON DELETE CASCADE
+);
 
 COMMIT TRANSACTION;

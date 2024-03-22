@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vandenbill/marketplace-10k-rps/internal/dto"
-	"github.com/vandenbill/marketplace-10k-rps/internal/ierr"
-	"github.com/vandenbill/marketplace-10k-rps/internal/service"
-	response "github.com/vandenbill/marketplace-10k-rps/pkg/resp"
+	"github.com/vandenbill/social-media-10k-rps/internal/dto"
+	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
+	"github.com/vandenbill/social-media-10k-rps/internal/service"
+	response "github.com/vandenbill/social-media-10k-rps/pkg/resp"
 )
 
 type userHandler struct {

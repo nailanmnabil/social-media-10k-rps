@@ -2,13 +2,15 @@ package service
 
 import (
 	"context"
+	"net/mail"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/vandenbill/marketplace-10k-rps/internal/cfg"
-	"github.com/vandenbill/marketplace-10k-rps/internal/dto"
-	"github.com/vandenbill/marketplace-10k-rps/internal/ierr"
-	"github.com/vandenbill/marketplace-10k-rps/internal/repo"
-	"github.com/vandenbill/marketplace-10k-rps/pkg/auth"
+	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
+	"github.com/vandenbill/social-media-10k-rps/internal/dto"
+	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
+	"github.com/vandenbill/social-media-10k-rps/internal/repo"
+	"github.com/vandenbill/social-media-10k-rps/pkg/auth"
+	validatorPkg "github.com/vandenbill/social-media-10k-rps/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,8 +32,24 @@ func (u *UserService) Register(ctx context.Context, body dto.ReqRegister) (dto.R
 		return res, ierr.ErrBadRequest
 	}
 
-	user := body.ToEntity(u.cfg.BCryptSalt)
-	userID, err := u.repo.User.Insert(ctx, user)
+	if body.CredentialType == validatorPkg.EmailType {
+		_, err := mail.ParseAddress(body.CredentialValue)
+		if err != nil {
+			return res, ierr.ErrBadRequest
+		}
+	} else if body.CredentialType == validatorPkg.PhoneType {
+		v := struct {
+			Phone string `validate:"required,e164"`
+		}{Phone: body.CredentialValue}
+
+		err := u.validator.Struct(v)
+		if err != nil {
+			return res, ierr.ErrBadRequest
+		}
+	}
+
+	isUseEmail, user := body.ToEntity(u.cfg.BCryptSalt)
+	userID, err := u.repo.User.Insert(ctx, user, isUseEmail)
 	if err != nil {
 		return res, err
 	}
@@ -41,7 +59,11 @@ func (u *UserService) Register(ctx context.Context, body dto.ReqRegister) (dto.R
 		return res, err
 	}
 
-	res.Username = body.Username
+	if isUseEmail {
+		res.Email = body.CredentialValue
+	} else {
+		res.Phone = body.CredentialValue
+	}
 	res.Name = body.Name
 	res.AccessToken = token
 
@@ -56,7 +78,25 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 		return res, ierr.ErrBadRequest
 	}
 
-	user, err := u.repo.User.GetByUsername(ctx, body.Username)
+	isUseEmail := true
+	if body.CredentialType == validatorPkg.EmailType {
+		_, err := mail.ParseAddress(body.CredentialValue)
+		if err != nil {
+			return res, ierr.ErrBadRequest
+		}
+	} else if body.CredentialType == validatorPkg.PhoneType {
+		isUseEmail = false
+		v := struct {
+			Phone string `validate:"required,e164"`
+		}{Phone: body.CredentialValue}
+
+		err := u.validator.Struct(v)
+		if err != nil {
+			return res, ierr.ErrBadRequest
+		}
+	}
+
+	user, err := u.repo.User.GetByEmailOrPhone(ctx, body.CredentialValue, isUseEmail)
 	if err != nil {
 		return res, err
 	}
@@ -73,7 +113,11 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 		return res, err
 	}
 
-	res.Username = user.Username
+	if isUseEmail {
+		res.Email = body.CredentialValue
+	} else {
+		res.Phone = body.CredentialValue
+	}
 	res.Name = user.Name
 	res.AccessToken = token
 

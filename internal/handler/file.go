@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
-	"github.com/vandenbill/marketplace-10k-rps/internal/cfg"
-	"github.com/vandenbill/marketplace-10k-rps/internal/dto"
+	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
+	"github.com/vandenbill/social-media-10k-rps/internal/dto"
 )
 
 type fileHandler struct {

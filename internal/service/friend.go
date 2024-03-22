@@ -76,3 +76,17 @@ func (u *FriendService) DeleteFriend(ctx context.Context, body dto.ReqDeleteFrie
 
 	return nil
 }
+
+// func (u *FriendService) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) error {
+// 	err := u.validator.Struct(param)
+// 	if err != nil {
+// 		return ierr.ErrBadRequest
+// 	}
+
+// 	res, err := u.repo.Friend.GetFriends(ctx, param, sub)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }

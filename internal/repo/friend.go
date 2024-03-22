@@ -64,3 +64,44 @@ func (u *friendRepo) FindFriend(ctx context.Context, sub, friendSub string) erro
 
 	return nil
 }
+
+// func (u *friendRepo) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) ([]dto.ResGetFriends, error) {
+// 	var query strings.Builder
+
+// 	query.WriteString("SELECT id, name, image_url, created_at, (SELECT COUNT(*) FROM friends f2 WHERE f2.a = u.id) as friendCount FROM friends f WHERE 1 = 1")
+// 	if param.OnlyFriend {
+// 		query.WriteString("SELECT id, name, image_url, created_at, (SELECT COUNT(*) FROM friends f2 WHERE f2.a = f.b) as friendCount FROM users u WHERE 1 = 1 ")
+// 	}
+
+// 	if param.OnlyFriend {
+// 		query.WriteString(fmt.Sprintf("AND u.id != %s ", sub))
+// 	} else {
+// 		query.WriteString(fmt.Sprintf("AND f.a = %s ", sub))
+// 	}
+
+// 	if param.Search != "" {
+// 		query.WriteString(fmt.Sprintf("AND name LIKE '%s' ", fmt.Sprintf("%%%s%%", param.Search)))
+// 	}
+
+// 	query.WriteString(fmt.Sprintf("ORDER BY %s %s ", param.SortBy, param.OrderBy))
+
+// 	query.WriteString(fmt.Sprintf("LIMIT %d OFFSET %d", param.Limit, param.Offset))
+
+// 	rows, err := u.conn.Query(ctx, query.String())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	results := make([]dto.ResGetFriends, 0, 10)
+// 	for rows.Next() {
+// 		result := dto.ResGetFriends{}
+// 		err := rows.Scan(&result.UserID, &result.Name, &result.ImageURL, &result.CreatedAt, &result.FriendCount)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		results = append(results, result)
+// 	}
+
+// 	return res, nil
+// }

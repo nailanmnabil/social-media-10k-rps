@@ -125,6 +125,40 @@ func (u *userRepo) GetByID(ctx context.Context, id string) (entity.User, error) 
 	return user, nil
 }
 
+func (u *userRepo) LookUp(ctx context.Context, id string) error {
+	q := `SELECT 1 FROM users WHERE id = $1`
+
+	v := 0
+	err := u.conn.QueryRow(ctx,
+		q, id).Scan(&v)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return ierr.ErrNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (u *userRepo) UpdateAccount(ctx context.Context, id, name, url string) error {
+	q := `UPDATE users SET image_url = $1, name = $2 WHERE id = $3`
+	_, err := u.conn.Exec(ctx, q,
+		url, name, id)
+
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrDuplicate
+			}
+		}
+		return err
+	}
+
+	return nil
+}
+
 // func (u *userRepo) GetNameByID(ctx context.Context, id string) (string, error) {
 // 	name := ""
 // 	err := u.conn.QueryRow(ctx,

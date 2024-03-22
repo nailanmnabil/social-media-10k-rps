@@ -54,7 +54,7 @@ func (u *UserService) Register(ctx context.Context, body dto.ReqRegister) (dto.R
 		return res, err
 	}
 
-	token, _, err := auth.GenerateToken(u.cfg.JWTSecret, 2, auth.JwtPayload{Sub: userID})
+	token, _, err := auth.GenerateToken(u.cfg.JWTSecret, 8, auth.JwtPayload{Sub: userID})
 	if err != nil {
 		return res, err
 	}
@@ -108,7 +108,7 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 		return res, err
 	}
 
-	token, _, err := auth.GenerateToken(u.cfg.JWTSecret, 60, auth.JwtPayload{Sub: user.ID})
+	token, _, err := auth.GenerateToken(u.cfg.JWTSecret, 8, auth.JwtPayload{Sub: user.ID})
 	if err != nil {
 		return res, err
 	}
@@ -157,5 +157,20 @@ func (u *UserService) LinkPhone(ctx context.Context, body dto.ReqLinkPhone, sub 
 	}
 
 	err = u.repo.User.LinkPhone(ctx, body.Phone, sub)
+	return err
+}
+
+func (u *UserService) UpdateAccount(ctx context.Context, body dto.ReqUpdateAccount, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	err = u.repo.User.LookUp(ctx, sub)
+	if err != nil {
+		return err
+	}
+
+	err = u.repo.User.UpdateAccount(ctx, sub, body.Name, body.ImageURL)
 	return err
 }

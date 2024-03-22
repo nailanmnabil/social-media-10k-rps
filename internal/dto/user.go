@@ -36,6 +36,10 @@ type (
 	ReqLinkPhone struct {
 		Phone string `json:"phone" validate:"required,e164"`
 	}
+	ReqUpdateAccount struct {
+		ImageURL string `json:"imageUrl" validate:"required,url"`
+		Name     string `json:"name" validate:"required,min=5,max=50"`
+	}
 )
 
 func (d *ReqRegister) ToEntity(cryptCost int) (bool, entity.User) {

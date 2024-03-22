@@ -88,6 +88,7 @@ func (h *Handler) registRoute() {
 
 		r.Post("/v1/user/link", userH.LinkEmail)
 		r.Post("/v1/user/link/phone", userH.LinkPhone)
+		r.Patch("/v1/user", userH.UpdateAccount)
 
 		r.Post("/v1/image", fileH.Upload)
 	})

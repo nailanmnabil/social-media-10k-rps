@@ -80,11 +80,11 @@ func HashPassword(password string, cost int) string {
 	return string(bytes)
 }
 
-func GenerateToken(secret string, expirationInMin int, jwtPayload JwtPayload) (string, map[string]any, error) {
+func GenerateToken(secret string, expirationInHour int, jwtPayload JwtPayload) (string, map[string]any, error) {
 	claims := jwt.MapClaims{
 		"iss": "marketplace",
 		"sub": jwtPayload.Sub,
-		"exp": time.Now().Add(time.Minute * time.Duration(expirationInMin)).Unix(),
+		"exp": time.Now().Add(time.Hour * time.Duration(expirationInHour)).Unix(),
 		"nbf": time.Now().Unix(),
 		"iat": time.Now().Unix(),
 	}

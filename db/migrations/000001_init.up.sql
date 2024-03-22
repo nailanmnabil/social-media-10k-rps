@@ -5,6 +5,7 @@ CREATE TABLE USERS (
     email VARCHAR UNIQUE,
     phone_number VARCHAR UNIQUE,
     name VARCHAR,
+    image_url VARCHAR,
     password VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -123,3 +123,39 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 
 	return res, nil
 }
+
+func (u *UserService) LinkEmail(ctx context.Context, body dto.ReqLinkEmail, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	user, err := u.repo.User.GetByID(ctx, sub)
+	if err != nil {
+		return err
+	}
+	if user.Email != "" {
+		return ierr.ErrBadRequest
+	}
+
+	err = u.repo.User.LinkEmail(ctx, body.Email, sub)
+	return err
+}
+
+func (u *UserService) LinkPhone(ctx context.Context, body dto.ReqLinkPhone, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	user, err := u.repo.User.GetByID(ctx, sub)
+	if err != nil {
+		return err
+	}
+	if user.PhoneNumber != "" {
+		return ierr.ErrBadRequest
+	}
+
+	err = u.repo.User.LinkPhone(ctx, body.Phone, sub)
+	return err
+}

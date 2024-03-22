@@ -30,6 +30,12 @@ type (
 		Name        string `json:"name"`
 		AccessToken string `json:"accessToken"`
 	}
+	ReqLinkEmail struct {
+		Email string `json:"email" validate:"required,email"`
+	}
+	ReqLinkPhone struct {
+		Phone string `json:"phone" validate:"required,e164"`
+	}
 )
 
 func (d *ReqRegister) ToEntity(cryptCost int) (bool, entity.User) {

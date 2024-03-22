@@ -86,6 +86,9 @@ func (h *Handler) registRoute() {
 		r.Use(jwtauth.Verifier(tokenAuth))
 		r.Use(jwtauth.Authenticator(tokenAuth))
 
+		r.Post("/v1/user/link", userH.LinkEmail)
+		r.Post("/v1/user/link/phone", userH.LinkPhone)
+
 		r.Post("/v1/image", fileH.Upload)
 	})
 }

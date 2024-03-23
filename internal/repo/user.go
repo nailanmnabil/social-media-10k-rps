@@ -81,15 +81,21 @@ func (u *userRepo) LinkPhone(ctx context.Context, phone, sub string) error {
 
 func (u *userRepo) GetByEmailOrPhone(ctx context.Context, cred string, isUseEmail bool) (entity.User, error) {
 	user := entity.User{}
-	q := `SELECT id, name, password FROM users
+	q := `SELECT id, name, email, phone_number, password FROM users
 	WHERE email = $1`
 	if !isUseEmail {
-		q = `SELECT id, name, password FROM users
+		q = `SELECT id, name, email, phone_number, password FROM users
 		WHERE phone_number = $1`
 	}
 
+	var email sql.NullString
+	var phone sql.NullString
+
 	err := u.conn.QueryRow(ctx,
-		q, cred).Scan(&user.ID, &user.Name, &user.Password)
+		q, cred).Scan(&user.ID, &user.Name, &email, &phone, &user.Password)
+
+	user.Email = email.String
+	user.PhoneNumber = phone.String
 
 	if err != nil {
 		if err.Error() == "no rows in result set" {

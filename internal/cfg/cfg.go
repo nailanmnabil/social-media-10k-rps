@@ -18,6 +18,7 @@ type Cfg struct {
 	S3ID           string
 	S3SecretKey    string
 	S3BucketName   string
+	S3Region   string
 }
 
 func Load() *Cfg {
@@ -33,6 +34,7 @@ func Load() *Cfg {
 	cfg.S3ID = os.Getenv("S3_ID")
 	cfg.S3SecretKey = os.Getenv("S3_SECRET_KEY")
 	cfg.S3BucketName = os.Getenv("S3_BUCKET_NAME")
+	cfg.S3Region = os.Getenv("S3_REGION")
 
 	cfg.BCryptSalt, err = strconv.Atoi(os.Getenv("BCRYPT_SALT"))
 	if err != nil {

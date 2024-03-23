@@ -26,6 +26,14 @@ func (u *PostService) AddPost(ctx context.Context, body dto.ReqAddPost, sub stri
 		return ierr.ErrBadRequest
 	}
 
+	isHaveFriend, err := u.repo.Post.IsHaveFriend(ctx, sub)
+	if err != nil {
+		return err
+	}
+	if !isHaveFriend {
+		return ierr.ErrBadRequest
+	}
+
 	postID, err := u.repo.Post.AddPost(ctx, sub, body.PostInHTML)
 	if err != nil {
 		if err == ierr.ErrDuplicate {

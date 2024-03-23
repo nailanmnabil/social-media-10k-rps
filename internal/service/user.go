@@ -113,11 +113,8 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 		return res, err
 	}
 
-	if isUseEmail {
-		res.Email = body.CredentialValue
-	} else {
-		res.Phone = body.CredentialValue
-	}
+	res.Email = user.Email
+	res.Phone = user.PhoneNumber
 	res.Name = user.Name
 	res.AccessToken = token
 
@@ -163,6 +160,10 @@ func (u *UserService) LinkPhone(ctx context.Context, body dto.ReqLinkPhone, sub 
 func (u *UserService) UpdateAccount(ctx context.Context, body dto.ReqUpdateAccount, sub string) error {
 	err := u.validator.Struct(body)
 	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	if body.ImageURL == "http://incomplete"{
 		return ierr.ErrBadRequest
 	}
 

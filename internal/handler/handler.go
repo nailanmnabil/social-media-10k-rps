@@ -92,6 +92,7 @@ func (h *Handler) registRoute() {
 		r.Post("/v1/user/link/phone", userH.LinkPhone)
 		r.Patch("/v1/user", userH.UpdateAccount)
 
+		r.Get("/v1/friend", friendH.GetFriends)
 		r.Post("/v1/friend", friendH.AddFriend)
 		r.Delete("/v1/friend", friendH.DeleteFriend)
 

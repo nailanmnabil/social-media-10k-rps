@@ -17,6 +17,23 @@ func newPostRepo(conn *pgxpool.Pool) *postRepo {
 	return &postRepo{conn}
 }
 
+func (u *postRepo) IsHaveFriend(ctx context.Context, sub string) (bool, error) {
+	q := `SELECT COUNT(*) AS c FROM friends f WHERE f.a = $1`
+
+	c := 0
+	err := u.conn.QueryRow(ctx, q,
+		sub).Scan(&c)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return false, ierr.ErrNotFound
+		}
+		return false, err
+	}
+
+	return c > 0, nil
+}
+
 func (u *postRepo) AddPost(ctx context.Context, sub, content string) (string, error) {
 	q := `INSERT INTO posts (id, creator, content)
 	VALUES (gen_random_uuid(), $1, $2) RETURNING id`

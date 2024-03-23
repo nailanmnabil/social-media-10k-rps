@@ -1,7 +1,5 @@
 package dto
 
-import "time"
-
 type (
 	ReqAddFriend struct {
 		UserID string `json:"userId" validate:"required,uuid4"`
@@ -18,10 +16,10 @@ type (
 		Search     string `json:"search"`
 	}
 	ResGetFriends struct {
-		UserID      string    `json:"userId"`
-		Name        string    `json:"name"`
-		ImageURL    string    `json:"imageUrl"`
-		FriendCount int       `json:"friendCount"`
-		CreatedAt   time.Time `json:"createdAt"`
+		UserID      string `json:"userId"`
+		Name        string `json:"name"`
+		ImageURL    string `json:"imageUrl"`
+		FriendCount int    `json:"friendCount"`
+		CreatedAt   string `json:"createdAt"`
 	}
 )

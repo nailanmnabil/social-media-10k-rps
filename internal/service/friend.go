@@ -8,6 +8,7 @@ import (
 	"github.com/vandenbill/social-media-10k-rps/internal/dto"
 	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
 	"github.com/vandenbill/social-media-10k-rps/internal/repo"
+	response "github.com/vandenbill/social-media-10k-rps/pkg/resp"
 )
 
 type FriendService struct {
@@ -77,16 +78,32 @@ func (u *FriendService) DeleteFriend(ctx context.Context, body dto.ReqDeleteFrie
 	return nil
 }
 
-// func (u *FriendService) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) error {
-// 	err := u.validator.Struct(param)
-// 	if err != nil {
-// 		return ierr.ErrBadRequest
-// 	}
+func (u *FriendService) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) ([]dto.ResGetFriends, response.Meta, error) {
+	meta := response.Meta{}
 
-// 	res, err := u.repo.Friend.GetFriends(ctx, param, sub)
-// 	if err != nil {
-// 		return err
-// 	}
+	if param.Limit == 0 {
+		param.Limit = 5
+	}
+	if param.SortBy == "" {
+		param.SortBy = "createdAt"
+	}
+	if param.OrderBy == "" {
+		param.OrderBy = "desc"
+	}
 
-// 	return nil
-// }
+	err := u.validator.Struct(param)
+	if err != nil {
+		return nil, meta, ierr.ErrBadRequest
+	}
+
+	res, count, err := u.repo.Friend.GetFriends(ctx, param, sub)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	meta.Total = count
+	meta.Limit = param.Limit
+	meta.Offset = param.Offset
+
+	return res, meta, nil
+}

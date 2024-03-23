@@ -49,7 +49,7 @@ func (h *fileHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("ap-southeast-1"),
+		Region:      aws.String(h.cfg.S3Region),
 		Credentials: credentials.NewStaticCredentials(h.cfg.S3ID, h.cfg.S3SecretKey, ""),
 	})
 	if err != nil {

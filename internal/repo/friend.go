@@ -2,11 +2,17 @@ package repo
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
+	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/vandenbill/social-media-10k-rps/internal/dto"
 	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
+	timepkg "github.com/vandenbill/social-media-10k-rps/pkg/time"
 )
 
 type friendRepo struct {
@@ -65,43 +71,59 @@ func (u *friendRepo) FindFriend(ctx context.Context, sub, friendSub string) erro
 	return nil
 }
 
-// func (u *friendRepo) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) ([]dto.ResGetFriends, error) {
-// 	var query strings.Builder
+func (u *friendRepo) GetFriends(ctx context.Context, param dto.ParamGetFriends, sub string) ([]dto.ResGetFriends, int, error) {
+	var query strings.Builder
 
-// 	query.WriteString("SELECT id, name, image_url, created_at, (SELECT COUNT(*) FROM friends f2 WHERE f2.a = u.id) as friendCount FROM friends f WHERE 1 = 1")
-// 	if param.OnlyFriend {
-// 		query.WriteString("SELECT id, name, image_url, created_at, (SELECT COUNT(*) FROM friends f2 WHERE f2.a = f.b) as friendCount FROM users u WHERE 1 = 1 ")
-// 	}
+	if param.OnlyFriend {
+		query.WriteString(fmt.Sprintf("SELECT u.id, u.name, u.image_url, u.created_at, (select count(*) from friends f2 where f2.a = f.b) as friendCount from friends f join users u on u.id = f.b WHERE f.a = '%s' ", sub))
+	} else {
+		query.WriteString("SELECT u.id, u.name, u.image_url, u.created_at, (SELECT COUNT(*) FROM friends f WHERE f.a = u.id) as friendCount FROM users u WHERE 1 = 1 ")
+	}
 
-// 	if param.OnlyFriend {
-// 		query.WriteString(fmt.Sprintf("AND u.id != %s ", sub))
-// 	} else {
-// 		query.WriteString(fmt.Sprintf("AND f.a = %s ", sub))
-// 	}
+	if param.Search != "" {
+		query.WriteString(fmt.Sprintf("AND LOWER(name) LIKE LOWER('%s') ", fmt.Sprintf("%%%s%%", param.Search)))
+	}
 
-// 	if param.Search != "" {
-// 		query.WriteString(fmt.Sprintf("AND name LIKE '%s' ", fmt.Sprintf("%%%s%%", param.Search)))
-// 	}
+	if param.SortBy == "createdAt" {
+		param.SortBy = "created_at"
+	}
+	query.WriteString(fmt.Sprintf("ORDER BY %s %s ", param.SortBy, param.OrderBy))
 
-// 	query.WriteString(fmt.Sprintf("ORDER BY %s %s ", param.SortBy, param.OrderBy))
+	query.WriteString(fmt.Sprintf("LIMIT %d OFFSET %d", param.Limit, param.Offset))
 
-// 	query.WriteString(fmt.Sprintf("LIMIT %d OFFSET %d", param.Limit, param.Offset))
+	rows, err := u.conn.Query(ctx, query.String())
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
 
-// 	rows, err := u.conn.Query(ctx, query.String())
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+	results := make([]dto.ResGetFriends, 0, 10)
+	for rows.Next() {
+		var imageUrl sql.NullString
+		var createdAt time.Time
 
-// 	results := make([]dto.ResGetFriends, 0, 10)
-// 	for rows.Next() {
-// 		result := dto.ResGetFriends{}
-// 		err := rows.Scan(&result.UserID, &result.Name, &result.ImageURL, &result.CreatedAt, &result.FriendCount)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		results = append(results, result)
-// 	}
+		result := dto.ResGetFriends{}
+		err := rows.Scan(&result.UserID, &result.Name, &imageUrl, &createdAt, &result.FriendCount)
+		if err != nil {
+			return nil, 0, err
+		}
 
-// 	return res, nil
-// }
+		result.ImageURL = imageUrl.String
+		result.CreatedAt = timepkg.TimeToISO8601(createdAt)
+		results = append(results, result)
+	}
+
+	count, err := u.count(ctx, query.String())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return results, count, nil
+}
+
+func (u *friendRepo) count(ctx context.Context, q string) (int, error) {
+	q = fmt.Sprintf(`SELECT COUNT(*) AS totalRows FROM (%s)`, q)
+	count := 0
+	err := u.conn.QueryRow(ctx, q).Scan(&count)
+	return count, err
+}

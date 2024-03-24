@@ -29,8 +29,8 @@ func main() {
 	service := service.NewService(repo, validator, cfg)
 	handler.NewHandler(router, service, cfg)
 
-	log.Println("server started on :8000")
-	if err := http.ListenAndServe(":8000", router); err != nil {
+	log.Println("server started on :8080")
+	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatalln("fail start server:", err)
 	}
 }
